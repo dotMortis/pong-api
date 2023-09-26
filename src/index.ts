@@ -41,8 +41,8 @@ app.post('/input', (req, res) => {
 // GET ->
 
 app.get('/debug', (req, res) => {
-  startGame()
-  return res.send('Received a GET HTTP metho DEBUG');
+    startGame();
+    return res.send('Received a GET HTTP metho DEBUG');
 });
 
 app.get('/start', (req, res) => {
@@ -82,7 +82,7 @@ console.log('Websocket started on port 8090');
 wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
     clients.push(ws);
-    startGame()
+    startGame();
 
     ws.on('message', (message: string) => {
         console.log(`Received message: ${message}`);
@@ -98,7 +98,7 @@ wss.on('connection', (ws: WebSocket) => {
 });
 
 const screenWidth = 1000;
-const screenHeight = 600;
+const screenHeight = 750;
 const ballRadius = 2;
 const playerWidth = 5;
 const fps = 10;
@@ -119,8 +119,8 @@ const playerHeight = 250;
 const playerStep = 50;
 const maxPlayerY = screenHeight - playerHeight;
 const minPlayerY = 0;
-let playerLeftY = -playerHeight / 2;
-let playerRightY = -playerHeight / 2;
+let playerLeftY = screenHeight / 2 - playerHeight / 2;
+let playerRightY = screenHeight / 2 - playerHeight / 2;
 
 const playerLeftMove = (dir: 'up' | 'down') => {
     if (dir === 'up' && playerLeftY < maxPlayerY) {
@@ -161,6 +161,7 @@ const startGame = async (): Promise<void> => {
         running = tick();
         await new Promise<void>(res => setTimeout(() => res(), 1000 / fps));
     }
+    stopGame();
 };
 const stopGame = (): void => {
     running = false;
@@ -170,8 +171,8 @@ const stopGame = (): void => {
             ballPos.y = screenHeight / 2;
             ballSpeed.x = Math.random();
             ballSpeed.y = 2 * Math.random() - 1;
-            playerLeftY = -playerHeight / 2;
-            playerRightY = -playerHeight / 2;
+            playerLeftY = screenHeight / 2 - playerHeight / 2;
+            playerRightY = screenHeight / 2 - playerHeight / 2;
             currentDir = 'LEFT';
         },
         (1000 / fps) * 4
