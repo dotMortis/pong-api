@@ -122,7 +122,7 @@ const playerLeftMove = (dir: 'up' | 'down') => {
     if (dir === 'up' && playerLeftY < maxPlayerY) {
         playerLeftY += playerStep;
         if (playerLeftY > maxPlayerY) playerLeftY = maxPlayerY;
-    } else if (playerLeftY > minPlayerY) {
+    } else if (dir === 'down' && playerLeftY > minPlayerY) {
         playerLeftY -= playerStep;
         if (playerLeftY < minPlayerY) playerLeftY = minPlayerY;
     }
@@ -134,7 +134,7 @@ const playerRightMove = (dir: 'up' | 'down') => {
     if (dir === 'up' && playerRightY < maxPlayerY) {
         playerRightY += playerStep;
         if (playerRightY > maxPlayerY) playerRightY = maxPlayerY;
-    } else if (playerRightY > minPlayerY) {
+    } else if (dir === 'down' && playerRightY > minPlayerY) {
         playerRightY -= playerStep;
         if (playerRightY < minPlayerY) playerRightY = minPlayerY;
     }
