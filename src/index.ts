@@ -106,6 +106,13 @@ console.log('Websocket started on port 8090');
 wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
     clients.push(ws);
+    let welcome: InputFromStarfacePbx = {
+      DTMF: '',
+      CallerName: '',
+      CallerID: '',
+      action: 'welcome'
+    }
+    ws.send(JSON.stringify(welcome))
 
     ws.on('message', (message: string) => {
         console.log(`Received message: ${message}`);
