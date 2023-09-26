@@ -32,15 +32,20 @@ app.post('/', (req, res) => {
 });
 
 app.post('/start', (req, res) => {
+  console.log("received start with body: ", req.body)
   return res.send('Received a POST HTTP method');
 });
 
-
 app.post('/stop', (req, res) => {
+  console.log("received stop with body: ", req.body)
+  let input: InputFromStarfacePbx = req.body
   return res.send('Received a POST HTTP method');
 });
 
 app.post('/input', (req, res) => {
+  console.log("received input with body: ", req.body)
+  let input: InputFromStarfacePbx = req.body
+  console.log("CallerId: "+ input.CallerID)
   return res.send('Received a POST HTTP method');
 });
 
