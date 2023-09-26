@@ -9,9 +9,13 @@ export type GameStatus = {
         y: number;
     };
     playerLeft: {
+        id?: string;
+        name?: string;
         y: number;
     };
     playerRight: {
+        id?: string;
+        name?: string;
         y: number;
     };
     playerHeight: number;
