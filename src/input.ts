@@ -1,5 +1,6 @@
 interface InputFromStarfacePbx {
     DTMF: string;
     CallerName: string;
-    CallerID: '10';
+    CallerID: string;
+    action: string; // start | stop | input
 }

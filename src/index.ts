@@ -23,15 +23,14 @@ server.listen(8080, '0.0.0.0', () => {
     console.log('Server started on port 8080');
 });
 
-app.get('/', (req, res) => {
-    return res.send('Received a GET HTTP method');
-});
-
-app.post('/', (req, res) => {
-    return res.send('Received a POST HTTP method');
-});
+// POST ->
 
 app.post('/start', (req, res) => {
+  console.log("POST start ", req.query)
+  let untyped: any = req.query
+  let input: InputFromStarfacePbx = untyped
+  input.action = "start"
+  didReceiveInputFromPbx(input)
     return res.send('Received a POST HTTP method');
 });
 
@@ -40,8 +39,46 @@ app.post('/stop', (req, res) => {
 });
 
 app.post('/input', (req, res) => {
+  console.log("POST input ", req.query)
+  let untyped: any = req.query
+  let input: InputFromStarfacePbx = untyped
+  input.action = "input"
+  didReceiveInputFromPbx(input)
     return res.send('Received a POST HTTP method');
 });
+
+// POST <-
+
+// GET ->
+
+app.get('/start', (req, res) => {
+  console.log("GET start ", req.query)
+  let untyped: any = req.query
+  let input: InputFromStarfacePbx = untyped
+  input.action = "start"
+  didReceiveInputFromPbx(input)
+  return res.send('Received a GET HTTP method' + JSON.stringify(input));
+});
+
+app.get('/stop', (req, res) => {
+  console.log("GET stop ", req.query)
+  let untyped: any = req.query
+  let input: InputFromStarfacePbx = untyped
+  input.action = "stop"
+  didReceiveInputFromPbx(input)
+  return res.send('Received a GET HTTP method' + JSON.stringify(input));
+});
+
+app.get('/input', (req, res) => {
+  console.log("GET input ", req.query)
+  let untyped: any = req.query
+  let input: InputFromStarfacePbx = untyped
+  input.action = "input"
+  didReceiveInputFromPbx(input)
+  return res.send('Received a GET HTTP method' + JSON.stringify(input));
+});
+
+// GET <-
 
 let clients: WebSocket[] = [];
 
@@ -217,8 +254,16 @@ const tick = (): boolean => {
 };
 
 gameEventHandler.onStatus(s => {
-    console.log(s);
+    //console.log(s);
     //send to socket clients
+    clients.forEach(ws => {
+      ws.send(JSON.stringify(s))
+    });
 });
 
 startGame();
+
+
+function didReceiveInputFromPbx(input: InputFromStarfacePbx) {
+  console.log("Did receive: ", input)
+}
