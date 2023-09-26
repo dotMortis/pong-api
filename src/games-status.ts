@@ -1,3 +1,5 @@
+export type MatchStatus = "LEFT_WON" | "RIGHT_WON" | "RUNNING";
+
 export type GameStatus = {
   screenWidth: number;
   screenHeight: number;
@@ -7,13 +9,12 @@ export type GameStatus = {
     y: number;
   };
   playerLeft: {
-    x: number;
     y: number;
   };
   playerRight: {
-    x: number;
     y: number;
   };
   playerHeight: number;
   playerWidth: number;
+  status: MatchStatus;
 };

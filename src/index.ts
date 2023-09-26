@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import { createServer } from "http";
+import { gameEventHandler } from "./game-event";
 import { mainRouter } from "./router";
 
 const app = express();
@@ -77,8 +78,19 @@ const isSaveSaveY = (ballPosY: number, playerPosY: number): boolean => {
   }
   return true;
 };
-
-setInterval(() => {
+let running = false;
+const startGame = async (): Promise<void> => {
+  if (running) return;
+  running = true;
+  while (running) {
+    running = tick();
+    await new Promise<void>((res) => setTimeout(() => res(), 1000 / fps));
+  }
+};
+const stopGame = (): void => {
+  running = false;
+};
+const tick = (): boolean => {
   ballPos.y += ballSpeed.base * ballSpeed.y * dt;
   if (ballPos.y + ballRadius >= screenHeight || ballPos.y <= 0) {
     ballSpeed.y *= -1;
@@ -90,7 +102,25 @@ setInterval(() => {
         ballPos.x += playerWidth;
         currentDir = "RIGHT";
       } else {
-        //PLAYER LEFT LOSE
+        gameEventHandler.sendStatus({
+          ball: {
+            x: ballPos.x,
+            y: ballPos.y,
+          },
+          ballRadius,
+          playerHeight,
+          playerLeft: {
+            y: playerLeftY,
+          },
+          playerRight: {
+            y: playerRightY,
+          },
+          playerWidth,
+          screenHeight,
+          screenWidth,
+          status: "RIGHT_WON",
+        });
+        return false;
       }
     }
   } else {
@@ -100,8 +130,45 @@ setInterval(() => {
         ballPos.x -= playerWidth;
         currentDir = "LEFT";
       } else {
-        //PLAY RIGHT LOSE
+        gameEventHandler.sendStatus({
+          ball: {
+            x: ballPos.x,
+            y: ballPos.y,
+          },
+          ballRadius,
+          playerHeight,
+          playerLeft: {
+            y: playerLeftY,
+          },
+          playerRight: {
+            y: playerRightY,
+          },
+          playerWidth,
+          screenHeight,
+          screenWidth,
+          status: "LEFT_WON",
+        });
+        return false;
       }
     }
   }
-}, 1000 / fps);
+  gameEventHandler.sendStatus({
+    ball: {
+      x: ballPos.x,
+      y: ballPos.y,
+    },
+    ballRadius,
+    playerHeight,
+    playerLeft: {
+      y: playerLeftY,
+    },
+    playerRight: {
+      y: playerRightY,
+    },
+    playerWidth,
+    screenHeight,
+    screenWidth,
+    status: "RUNNING",
+  });
+  return true;
+};
