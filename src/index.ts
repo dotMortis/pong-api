@@ -99,7 +99,7 @@ wss.on('connection', (ws: WebSocket) => {
 
 const screenWidth = 1000;
 const screenHeight = 750;
-const ballRadius = 2;
+const ballRadius = 15;
 const playerWidth = 5;
 const fps = 10;
 const dt = 1 / fps; //delta time
