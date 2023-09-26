@@ -67,9 +67,9 @@ const fps = 10;
 const dt = 1 / fps; //delta time
 //new ball = ballSpeed * dt
 const ballSpeed = {
-    x: 1,
-    y: 1,
-    base: 100
+    x: Math.random(),
+    y: 2 * Math.random() - 1,
+    base: 1000
 };
 const ballPos = {
     x: screenWidth / 2,
@@ -136,7 +136,7 @@ const tick = (): boolean => {
         ballPos.x -= dt * (ballSpeed.base * ballSpeed.x);
         if (ballPos.x <= 0) {
             if (isSaveSaveY(ballPos.y, playerLeftY)) {
-                ballPos.x += playerWidth;
+                ballPos.x = playerWidth;
                 currentDir = 'RIGHT';
             } else {
                 gameEventHandler.sendStatus({
@@ -164,7 +164,7 @@ const tick = (): boolean => {
         ballPos.x += dt * (ballSpeed.base * ballSpeed.x);
         if (ballPos.x >= screenWidth) {
             if (isSaveSaveY(ballPos.y, playerRightY)) {
-                ballPos.x -= playerWidth;
+                ballPos.x = screenWidth - playerWidth;
                 currentDir = 'LEFT';
             } else {
                 gameEventHandler.sendStatus({
@@ -209,3 +209,10 @@ const tick = (): boolean => {
     });
     return true;
 };
+
+gameEventHandler.onStatus(s => {
+    console.log(s);
+    //send to socket clients
+});
+
+startGame();
