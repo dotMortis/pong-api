@@ -82,8 +82,6 @@ console.log('Websocket started on port 8090');
 wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
     clients.push(ws);
-    startGame();
-
     ws.on('message', (message: string) => {
         console.log(`Received message: ${message}`);
         ws.send(`Server received your message: ${message}`);
@@ -272,6 +270,7 @@ gameEventHandler.onStatus(s => {
 startGame();
 
 function didReceiveInputFromPbx(input: InputFromStarfacePbx) {
+    console.log('Action', input);
     if (input.action === 'start') addCaller(input);
     else if (input.action === 'stop') deleteCaller(input);
     else if (input.action === 'input') moveSomething(input);
@@ -281,6 +280,7 @@ function didReceiveInputFromPbx(input: InputFromStarfacePbx) {
 const addCaller = (input: InputFromStarfacePbx) => {
     const { CallerID } = input;
     if (CallerID == null) throw new Error('Where CallerID?');
+    console.log('addCaller', input, callers);
     if (callers.size < 2) {
         const firstCaller = Array.from(callers)[0];
         if (firstCaller != null) {
@@ -295,6 +295,7 @@ const addCaller = (input: InputFromStarfacePbx) => {
 };
 
 const deleteCaller = (input: InputFromStarfacePbx) => {
+    console.log('delete caller', input, callers);
     const { CallerID } = input;
     if (CallerID == null) throw new Error('Where CallerID?');
     const caller = callers.get(String(CallerID));
