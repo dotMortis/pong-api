@@ -100,8 +100,8 @@ const fps = 10;
 const dt = 1 / fps; //delta time
 //new ball = ballSpeed * dt
 const ballSpeed = {
-    x: Math.random(),
-    y: 2 * Math.random() - 1,
+    x: 0.5 * (1 + Math.random()),
+    y: 0.5 * (1 + Math.random()) * Math.sign(Math.random() - 0.5),
     base: 1000
 };
 const ballPos = {
@@ -156,8 +156,10 @@ let running = false;
 const startGame = async (): Promise<void> => {
     if (running) return;
     running = true;
+    let ticks = 0;
     while (running) {
-        running = tick();
+        running = tick(ticks);
+        ticks += 3;
         await new Promise<void>(res => setTimeout(() => res(), 1000 / fps));
     }
     stopGame();
@@ -168,8 +170,8 @@ const stopGame = (): void => {
         () => {
             ballPos.x = screenWidth / 2;
             ballPos.y = screenHeight / 2;
-            ballSpeed.x = Math.random();
-            ballSpeed.y = 2 * Math.random() - 1;
+            ballSpeed.x = 0.5 * (1 + Math.random());
+            ballSpeed.y = 0.5 * (1 + Math.random()) * Math.sign(Math.random() - 0.5);
             playerLeftY = screenHeight / 2 - playerHeight / 2;
             playerRightY = screenHeight / 2 - playerHeight / 2;
             currentDir = 'LEFT';
@@ -177,13 +179,14 @@ const stopGame = (): void => {
         (1000 / fps) * 4
     );
 };
-const tick = (): boolean => {
+
+const tick = (addSpeed: number): boolean => {
     ballPos.y += ballSpeed.base * ballSpeed.y * dt;
     if (ballPos.y + ballRadius >= screenHeight || ballPos.y <= 0) {
         ballSpeed.y *= -1;
     }
     if (currentDir === 'LEFT') {
-        ballPos.x -= dt * (ballSpeed.base * ballSpeed.x);
+        ballPos.x -= dt * ((ballSpeed.base + addSpeed) * ballSpeed.x);
         if (ballPos.x <= 0) {
             if (isSaveSaveY(ballPos.y, playerLeftY)) {
                 ballPos.x = playerWidth;
@@ -215,7 +218,7 @@ const tick = (): boolean => {
             }
         }
     } else {
-        ballPos.x += dt * (ballSpeed.base * ballSpeed.x);
+        ballPos.x += dt * ((ballSpeed.base + addSpeed) * ballSpeed.x);
         if (ballPos.x >= screenWidth) {
             if (isSaveSaveY(ballPos.y, playerRightY)) {
                 ballPos.x = screenWidth - playerWidth;
