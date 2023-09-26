@@ -1,0 +1,60 @@
+{
+    "name": "pong-star",
+    "version": "0.0.1",
+    "license": "UNLICENSED",
+    "author": "Team 7",
+    "engines": {
+        "node": ">=20"
+    },
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "start:dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
+        "start:prod": "NODE_ENV=production node src/index.js",
+        "start:prod:cluster": "node ./node_modules/pm2/bin/pm2 start ecosystem.config.js --env production",
+        "prebuild": "pnpm run lint",
+        "build": "rimraf ./dist && tsc -p tsconfig.release.json",
+        "lint": "eslint . --ext .ts --ext .mts --ext .tsx",
+        "test": "jest --coverage",
+        "prettier": "prettier --config .prettierrc --write .",
+        "test:watch": "jest --watch",
+        "preversion": "pnmp run gitprune",
+        "postversion": "git push --tags && git push && echo \"Successfully released version $npm_package_version!\"",
+        "livepatch": "npm version patch",
+        "liveminor": "npm version minor",
+        "livemajor": "npm version major",
+        "prerelease": "npm version prerelease --preid=rc",
+        "prepatch": "npm version prepatch --preid=rc",
+        "preminor": "npm version preminor --preid=rc",
+        "premajor": "npm version premajor --preid=rc",
+        "gitprune": "git config fetch.prune true && git config fetch.pruneTags true && git fetch"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5",
+        "@types/node": "^20.7.0",
+        "@types/supertest": "^2.0.13",
+        "@typescript-eslint/eslint-plugin": "^6.7.3",
+        "@typescript-eslint/parser": "^6.7.3",
+        "cpy-cli": "^5.0.0",
+        "eslint": "^8.50.0",
+        "eslint-config-prettier": "^9.0",
+        "eslint-plugin-jest": "^27.4.0",
+        "eslint-plugin-prettier": "^5.0.0",
+        "jest": "^29.7.0",
+        "npm-check-updates": "^16.14.4",
+        "prettier": "^3.0",
+        "rimraf": "^5.0",
+        "supertest": "^6.3.3",
+        "ts-jest": "^29.1",
+        "ts-node": "^10.9.1",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.2.2"
+    },
+    "dependencies": {
+        "pm2": "^5.3.0",
+        "tslib": "^2.6.2"
+    },
+    "volta": {
+        "node": "20.7.0"
+    }
+}
