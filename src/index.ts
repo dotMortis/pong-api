@@ -40,6 +40,11 @@ app.post('/input', (req, res) => {
 
 // GET ->
 
+app.get('/debug', (req, res) => {
+  startGame()
+  return res.send('Received a GET HTTP metho DEBUG');
+});
+
 app.get('/start', (req, res) => {
     console.log('GET start ', req.query);
     const untyped: any = req.query;
