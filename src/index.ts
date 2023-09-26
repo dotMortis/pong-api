@@ -6,6 +6,7 @@ import { InputFromStarfacePbx } from './input';
 import { mainRouter } from './router';
 
 const callers = new Map<string, 'LEFT' | 'RIGHT'>();
+const callersDir = new Map<'LEFT' | 'RIGHT', { id: string; name: string }>();
 
 const app = express();
 const server = createServer(app);
@@ -196,10 +197,14 @@ const tick = (): boolean => {
                     ballRadius,
                     playerHeight,
                     playerLeft: {
-                        y: playerLeftY
+                        y: playerLeftY,
+                        id: callersDir.get('LEFT')?.id,
+                        name: callersDir.get('LEFT')?.name
                     },
                     playerRight: {
-                        y: playerRightY
+                        y: playerRightY,
+                        id: callersDir.get('RIGHT')?.id,
+                        name: callersDir.get('RIGHT')?.name
                     },
                     playerWidth,
                     screenHeight,
@@ -224,10 +229,14 @@ const tick = (): boolean => {
                     ballRadius,
                     playerHeight,
                     playerLeft: {
-                        y: playerLeftY
+                        y: playerLeftY,
+                        id: callersDir.get('LEFT')?.id,
+                        name: callersDir.get('LEFT')?.name
                     },
                     playerRight: {
-                        y: playerRightY
+                        y: playerRightY,
+                        id: callersDir.get('RIGHT')?.id,
+                        name: callersDir.get('RIGHT')?.name
                     },
                     playerWidth,
                     screenHeight,
@@ -246,10 +255,14 @@ const tick = (): boolean => {
         ballRadius,
         playerHeight,
         playerLeft: {
-            y: playerLeftY
+            y: playerLeftY,
+            id: callersDir.get('LEFT')?.id,
+            name: callersDir.get('LEFT')?.name
         },
         playerRight: {
-            y: playerRightY
+            y: playerRightY,
+            id: callersDir.get('RIGHT')?.id,
+            name: callersDir.get('RIGHT')?.name
         },
         playerWidth,
         screenHeight,
@@ -285,10 +298,16 @@ const addCaller = (input: InputFromStarfacePbx) => {
         const firstCaller = Array.from(callers)[0];
         if (firstCaller != null) {
             if (firstCaller[0] === String(CallerID)) throw new Error('You are already a player');
-            if (firstCaller[1] === 'LEFT') callers.set(String(CallerID), 'RIGHT');
-            else callers.set(String(CallerID), 'LEFT');
+            if (firstCaller[1] === 'LEFT') {
+                callersDir.set('RIGHT', { id: String(CallerID), name: input.CallerName });
+                callers.set(String(CallerID), 'RIGHT');
+            } else {
+                callersDir.set('LEFT', { id: String(CallerID), name: input.CallerName });
+                callers.set(String(CallerID), 'LEFT');
+            }
             startGame();
         } else {
+            callersDir.set('RIGHT', { id: String(CallerID), name: input.CallerName });
             callers.set(String(CallerID), 'RIGHT');
         }
     }
@@ -301,6 +320,7 @@ const deleteCaller = (input: InputFromStarfacePbx) => {
     const caller = callers.get(String(CallerID));
     if (!caller) throw new Error('You are not a player Huh');
     callers.delete(String(CallerID));
+    callersDir.delete(caller);
     stopGame();
 };
 
