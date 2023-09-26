@@ -4,6 +4,8 @@ import WebSocket from 'ws';
 import { gameEventHandler } from './game-event';
 import { mainRouter } from './router';
 
+const callers = new Map<string, 'LEFT' | 'RIGHT'>();
+
 const app = express();
 const server = createServer(app);
 
@@ -25,17 +27,33 @@ server.listen(8080, '0.0.0.0', () => {
 
 // POST ->
 
-app.post('/start', (req, res) => {
-  console.log("POST start ", req.query)
-  let untyped: any = req.query
-  let input: InputFromStarfacePbx = untyped
-  input.action = "start"
-  didReceiveInputFromPbx(input)
-    return res.send('Received a POST HTTP method');
+
+app.post('/start', (req, res, next) => {
+    const { CallerID }: { CallerID: string } = req.body;
+    if (CallerID == null) return next(new Error('Where CallerID?'));
+    if (callers.size < 2) {
+        const firstCaller = Array.from(callers)[0];
+        if (firstCaller != null) {
+            if (firstCaller[0] === String(CallerID))
+                return next(new Error('You are already a player'));
+            if (firstCaller[1] === 'LEFT') callers.set(String(CallerID), 'RIGHT');
+            else callers.set(String(CallerID), 'LEFT');
+            startGame();
+        } else {
+            callers.set(String(CallerID), 'RIGHT');
+        }
+    }
+    return res.status(200).json({ status: 'OGOG' });
 });
 
-app.post('/stop', (req, res) => {
-    return res.send('Received a POST HTTP method');
+app.post('/stop', (req, res, next) => {
+    const { CallerID }: { CallerID: string } = req.body;
+    if (CallerID == null) return next(new Error('Where CallerID?'));
+    const caller = callers.get(String(CallerID));
+    if (!caller) return next(new Error('You are not a player Huh'));
+    callers.delete(String(CallerID));
+    stopGame();
+    return res.status(200).json({ status: 'Bye' });
 });
 
 app.post('/input', (req, res) => {
