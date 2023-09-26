@@ -187,6 +187,18 @@ const startGame = async (): Promise<void> => {
 };
 const stopGame = (): void => {
     running = false;
+    setTimeout(
+        () => {
+            ballPos.x = screenWidth / 2;
+            ballPos.y = screenHeight / 2;
+            ballSpeed.x = Math.random();
+            ballSpeed.y = 2 * Math.random() - 1;
+            playerLeftY = -playerHeight / 2;
+            playerRightY = -playerHeight / 2;
+            currentDir = 'LEFT';
+        },
+        (1000 / fps) * 4
+    );
 };
 const tick = (): boolean => {
     ballPos.y += ballSpeed.base * ballSpeed.y * dt;
