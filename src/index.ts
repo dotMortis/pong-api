@@ -29,7 +29,6 @@ server.listen(8080, '0.0.0.0', () => {
 
 // POST ->
 app.post('/input', (req, res) => {
-    console.log('POST input ', req.query);
     const untyped: any = req.query;
     const input: InputFromStarfacePbx = untyped;
     input.action = 'input';
@@ -47,7 +46,6 @@ app.get('/debug', (req, res) => {
 });
 
 app.get('/start', (req, res) => {
-    console.log('GET start ', req.query);
     const untyped: any = req.query;
     const input: InputFromStarfacePbx = untyped;
     input.action = 'start';
@@ -56,7 +54,6 @@ app.get('/start', (req, res) => {
 });
 
 app.get('/stop', (req, res) => {
-    console.log('GET stop ', req.query);
     const untyped: any = req.query;
     const input: InputFromStarfacePbx = untyped;
     input.action = 'stop';
@@ -65,7 +62,6 @@ app.get('/stop', (req, res) => {
 });
 
 app.get('/input', (req, res) => {
-    console.log('GET input ', req.query);
     const untyped: any = req.query;
     const input: InputFromStarfacePbx = untyped;
     input.action = 'input';
@@ -122,6 +118,7 @@ let playerLeftY = screenHeight / 2 - playerHeight / 2;
 let playerRightY = screenHeight / 2 - playerHeight / 2;
 
 const playerLeftMove = (dir: 'up' | 'down') => {
+    console.log('player left move', dir, playerLeftY);
     if (dir === 'up' && playerLeftY < maxPlayerY) {
         playerLeftY += playerStep;
         if (playerLeftY > maxPlayerY) playerLeftY = maxPlayerY;
@@ -129,9 +126,11 @@ const playerLeftMove = (dir: 'up' | 'down') => {
         playerLeftY -= playerStep;
         if (playerLeftY < minPlayerY) playerLeftY = minPlayerY;
     }
+    console.log('player left pos new', playerLeftY);
 };
 
 const playerRightMove = (dir: 'up' | 'down') => {
+    console.log('player right move', dir, playerRightY);
     if (dir === 'up' && playerRightY < maxPlayerY) {
         playerRightY += playerStep;
         if (playerRightY > maxPlayerY) playerRightY = maxPlayerY;
@@ -139,6 +138,7 @@ const playerRightMove = (dir: 'up' | 'down') => {
         playerRightY -= playerStep;
         if (playerRightY < minPlayerY) playerRightY = minPlayerY;
     }
+    console.log('player right pos new', playerRightY);
 };
 
 const isSaveSaveY = (ballPosY: number, playerPosY: number): boolean => {
@@ -280,10 +280,7 @@ gameEventHandler.onStatus(s => {
     });
 });
 
-startGame();
-
 function didReceiveInputFromPbx(input: InputFromStarfacePbx) {
-    console.log('Action', input);
     if (input.action === 'start') addCaller(input);
     else if (input.action === 'stop') deleteCaller(input);
     else if (input.action === 'input') moveSomething(input);
@@ -325,6 +322,7 @@ const deleteCaller = (input: InputFromStarfacePbx) => {
 };
 
 const moveSomething = (input: InputFromStarfacePbx) => {
+    console.log('move', input);
     const { CallerID, DTMF } = input;
     const caller = callers.get(CallerID);
     if (!caller) throw new Error('Dont know you Mr ' + CallerID);
@@ -343,6 +341,6 @@ const moveSomething = (input: InputFromStarfacePbx) => {
             break;
         }
         default:
-            throw new Error('Unkown DTMF ' + DTMF);
+            console.log('Unkown DTMF ' + DTMF);
     }
 };
