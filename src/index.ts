@@ -102,7 +102,7 @@ const dt = 1 / fps; //delta time
 const ballSpeed = {
     x: Math.random(),
     y: 2 * Math.random() - 1,
-    base: 1000
+    base: 75
 };
 const ballPos = {
     x: screenWidth / 2,
@@ -155,6 +155,7 @@ const isSaveSaveY = (ballPosY: number, playerPosY: number): boolean => {
 let running = false;
 const startGame = async (): Promise<void> => {
     if (running) return;
+    console.log('Start game');
     running = true;
     while (running) {
         running = tick();
