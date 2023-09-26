@@ -19,11 +19,32 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json(err);
 });
 
-server.listen(8080, () => {
+server.listen(8080, '0.0.0.0', () => {
     console.log('Server started on port 8080');
 });
 
-const wss = new WebSocket.Server({ port: 3000 });
+app.get('/', (req, res) => {
+    return res.send('Received a GET HTTP method');
+});
+
+app.post('/', (req, res) => {
+    return res.send('Received a POST HTTP method');
+});
+
+app.post('/start', (req, res) => {
+    return res.send('Received a POST HTTP method');
+});
+
+app.post('/stop', (req, res) => {
+    return res.send('Received a POST HTTP method');
+});
+
+app.post('/input', (req, res) => {
+    return res.send('Received a POST HTTP method');
+});
+
+const wss = new WebSocket.Server({ port: 8090 });
+console.log('Websocket started on port 8090');
 
 wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
