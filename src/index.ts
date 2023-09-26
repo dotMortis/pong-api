@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import { createServer } from "http";
-import WebSocket from 'ws';
+import WebSocket from "ws";
+import { gameEventHandler } from "./game-event";
 import { mainRouter } from "./router";
-
 
 const app = express();
 const server = createServer(app);
@@ -47,19 +47,18 @@ app.post('/input', (req, res) => {
 const wss = new WebSocket.Server({ port: 8090 });
 console.log("Websocket started on port 8090");
 
-wss.on('connection', (ws: WebSocket) => {
-  console.log('New client connected');
+wss.on("connection", (ws: WebSocket) => {
+  console.log("New client connected");
 
-  ws.on('message', (message: string) => {
+  ws.on("message", (message: string) => {
     console.log(`Received message: ${message}`);
     ws.send(`Server received your message: ${message}`);
   });
 
-  ws.on('close', () => {
-    console.log('Client disconnected');
+  ws.on("close", () => {
+    console.log("Client disconnected");
   });
 });
-
 
 const screenWidth = 1000;
 const screenHeight = 750;
@@ -117,8 +116,19 @@ const isSaveSaveY = (ballPosY: number, playerPosY: number): boolean => {
   }
   return true;
 };
-
-setInterval(() => {
+let running = false;
+const startGame = async (): Promise<void> => {
+  if (running) return;
+  running = true;
+  while (running) {
+    running = tick();
+    await new Promise<void>((res) => setTimeout(() => res(), 1000 / fps));
+  }
+};
+const stopGame = (): void => {
+  running = false;
+};
+const tick = (): boolean => {
   ballPos.y += ballSpeed.base * ballSpeed.y * dt;
   if (ballPos.y + ballRadius >= screenHeight || ballPos.y <= 0) {
     ballSpeed.y *= -1;
@@ -130,7 +140,25 @@ setInterval(() => {
         ballPos.x += playerWidth;
         currentDir = "RIGHT";
       } else {
-        //PLAYER LEFT LOSE
+        gameEventHandler.sendStatus({
+          ball: {
+            x: ballPos.x,
+            y: ballPos.y,
+          },
+          ballRadius,
+          playerHeight,
+          playerLeft: {
+            y: playerLeftY,
+          },
+          playerRight: {
+            y: playerRightY,
+          },
+          playerWidth,
+          screenHeight,
+          screenWidth,
+          status: "RIGHT_WON",
+        });
+        return false;
       }
     }
   } else {
@@ -140,8 +168,45 @@ setInterval(() => {
         ballPos.x -= playerWidth;
         currentDir = "LEFT";
       } else {
-        //PLAY RIGHT LOSE
+        gameEventHandler.sendStatus({
+          ball: {
+            x: ballPos.x,
+            y: ballPos.y,
+          },
+          ballRadius,
+          playerHeight,
+          playerLeft: {
+            y: playerLeftY,
+          },
+          playerRight: {
+            y: playerRightY,
+          },
+          playerWidth,
+          screenHeight,
+          screenWidth,
+          status: "LEFT_WON",
+        });
+        return false;
       }
     }
   }
-}, 1000 / fps);
+  gameEventHandler.sendStatus({
+    ball: {
+      x: ballPos.x,
+      y: ballPos.y,
+    },
+    ballRadius,
+    playerHeight,
+    playerLeft: {
+      y: playerLeftY,
+    },
+    playerRight: {
+      y: playerRightY,
+    },
+    playerWidth,
+    screenHeight,
+    screenWidth,
+    status: "RUNNING",
+  });
+  return true;
+};
