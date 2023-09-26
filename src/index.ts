@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { createServer } from 'http';
 import WebSocket from 'ws';
 import { gameEventHandler } from './game-event';
+import { InputFromStarfacePbx } from './input';
 import { mainRouter } from './router';
 
 const callers = new Map<string, 'LEFT' | 'RIGHT'>();
@@ -26,42 +27,12 @@ server.listen(8080, '0.0.0.0', () => {
 });
 
 // POST ->
-
-
-app.post('/start', (req, res, next) => {
-    const { CallerID }: { CallerID: string } = req.body;
-    if (CallerID == null) return next(new Error('Where CallerID?'));
-    if (callers.size < 2) {
-        const firstCaller = Array.from(callers)[0];
-        if (firstCaller != null) {
-            if (firstCaller[0] === String(CallerID))
-                return next(new Error('You are already a player'));
-            if (firstCaller[1] === 'LEFT') callers.set(String(CallerID), 'RIGHT');
-            else callers.set(String(CallerID), 'LEFT');
-            startGame();
-        } else {
-            callers.set(String(CallerID), 'RIGHT');
-        }
-    }
-    return res.status(200).json({ status: 'OGOG' });
-});
-
-app.post('/stop', (req, res, next) => {
-    const { CallerID }: { CallerID: string } = req.body;
-    if (CallerID == null) return next(new Error('Where CallerID?'));
-    const caller = callers.get(String(CallerID));
-    if (!caller) return next(new Error('You are not a player Huh'));
-    callers.delete(String(CallerID));
-    stopGame();
-    return res.status(200).json({ status: 'Bye' });
-});
-
 app.post('/input', (req, res) => {
-  console.log("POST input ", req.query)
-  let untyped: any = req.query
-  let input: InputFromStarfacePbx = untyped
-  input.action = "input"
-  didReceiveInputFromPbx(input)
+    console.log('POST input ', req.query);
+    const untyped: any = req.query;
+    const input: InputFromStarfacePbx = untyped;
+    input.action = 'input';
+    didReceiveInputFromPbx(input);
     return res.send('Received a POST HTTP method');
 });
 
@@ -70,30 +41,30 @@ app.post('/input', (req, res) => {
 // GET ->
 
 app.get('/start', (req, res) => {
-  console.log("GET start ", req.query)
-  let untyped: any = req.query
-  let input: InputFromStarfacePbx = untyped
-  input.action = "start"
-  didReceiveInputFromPbx(input)
-  return res.send('Received a GET HTTP method' + JSON.stringify(input));
+    console.log('GET start ', req.query);
+    const untyped: any = req.query;
+    const input: InputFromStarfacePbx = untyped;
+    input.action = 'start';
+    didReceiveInputFromPbx(input);
+    return res.send('Received a GET HTTP method' + JSON.stringify(input));
 });
 
 app.get('/stop', (req, res) => {
-  console.log("GET stop ", req.query)
-  let untyped: any = req.query
-  let input: InputFromStarfacePbx = untyped
-  input.action = "stop"
-  didReceiveInputFromPbx(input)
-  return res.send('Received a GET HTTP method' + JSON.stringify(input));
+    console.log('GET stop ', req.query);
+    const untyped: any = req.query;
+    const input: InputFromStarfacePbx = untyped;
+    input.action = 'stop';
+    didReceiveInputFromPbx(input);
+    return res.send('Received a GET HTTP method' + JSON.stringify(input));
 });
 
 app.get('/input', (req, res) => {
-  console.log("GET input ", req.query)
-  let untyped: any = req.query
-  let input: InputFromStarfacePbx = untyped
-  input.action = "input"
-  didReceiveInputFromPbx(input)
-  return res.send('Received a GET HTTP method' + JSON.stringify(input));
+    console.log('GET input ', req.query);
+    const untyped: any = req.query;
+    const input: InputFromStarfacePbx = untyped;
+    input.action = 'input';
+    didReceiveInputFromPbx(input);
+    return res.send('Received a GET HTTP method' + JSON.stringify(input));
 });
 
 // GET <-
@@ -128,7 +99,7 @@ wss.on('connection', (ws: WebSocket) => {
 });
 
 const screenWidth = 1000;
-const screenHeight = 750;
+const screenHeight = 600;
 const ballRadius = 2;
 const playerWidth = 5;
 const fps = 10;
@@ -294,13 +265,63 @@ gameEventHandler.onStatus(s => {
     //console.log(s);
     //send to socket clients
     clients.forEach(ws => {
-      ws.send(JSON.stringify(s))
+        ws.send(JSON.stringify(s));
     });
 });
 
 startGame();
 
-
 function didReceiveInputFromPbx(input: InputFromStarfacePbx) {
-  console.log("Did receive: ", input)
+    if (input.action === 'start') addCaller(input);
+    else if (input.action === 'stop') deleteCaller(input);
+    else if (input.action === 'input') moveSomething(input);
+    else throw new Error('Unkonw action ' + input.action);
 }
+
+const addCaller = (input: InputFromStarfacePbx) => {
+    const { CallerID } = input;
+    if (CallerID == null) throw new Error('Where CallerID?');
+    if (callers.size < 2) {
+        const firstCaller = Array.from(callers)[0];
+        if (firstCaller != null) {
+            if (firstCaller[0] === String(CallerID)) throw new Error('You are already a player');
+            if (firstCaller[1] === 'LEFT') callers.set(String(CallerID), 'RIGHT');
+            else callers.set(String(CallerID), 'LEFT');
+            startGame();
+        } else {
+            callers.set(String(CallerID), 'RIGHT');
+        }
+    }
+};
+
+const deleteCaller = (input: InputFromStarfacePbx) => {
+    const { CallerID } = input;
+    if (CallerID == null) throw new Error('Where CallerID?');
+    const caller = callers.get(String(CallerID));
+    if (!caller) throw new Error('You are not a player Huh');
+    callers.delete(String(CallerID));
+    stopGame();
+};
+
+const moveSomething = (input: InputFromStarfacePbx) => {
+    const { CallerID, DTMF } = input;
+    const caller = callers.get(CallerID);
+    if (!caller) throw new Error('Dont know you Mr ' + CallerID);
+    const moveAction = caller === 'LEFT' ? playerLeftMove : playerRightMove;
+    switch (DTMF) {
+        case '1':
+        case '2':
+        case '3': {
+            moveAction('up');
+            break;
+        }
+        case '7':
+        case '8':
+        case '9': {
+            moveAction('down');
+            break;
+        }
+        default:
+            throw new Error('Unkown DTMF ' + DTMF);
+    }
+};
