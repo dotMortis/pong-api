@@ -43,11 +43,14 @@ app.post('/input', (req, res) => {
     return res.send('Received a POST HTTP method');
 });
 
-const wss = new WebSocket.Server({ port: 8090 });
+let clients: WebSocket[] = [];
+
+const wss = new WebSocket.Server({ port: 8090, host: '0.0.0.0' });
 console.log('Websocket started on port 8090');
 
 wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
+    clients.push(ws);
 
     ws.on('message', (message: string) => {
         console.log(`Received message: ${message}`);
@@ -56,6 +59,9 @@ wss.on('connection', (ws: WebSocket) => {
 
     ws.on('close', () => {
         console.log('Client disconnected');
+        clients = clients.filter(function (el) {
+            return el != ws;
+        });
     });
 });
 
