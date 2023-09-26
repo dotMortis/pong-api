@@ -95,12 +95,12 @@ wss.on('connection', (ws: WebSocket) => {
 const screenWidth = 1000;
 const screenHeight = 750;
 const ballRadius = 15;
-const playerWidth = 5;
+const playerWidth = 20;
 const fps = 10;
 const dt = 1 / fps; //delta time
 //new ball = ballSpeed * dt
 const ballSpeed = {
-    x: Math.random(),
+    x: 0.5 * (1 + Math.random()),
     y: 2 * Math.random() - 1,
     base: 75
 };
