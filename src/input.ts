@@ -1,6 +1,6 @@
-interface InputFromStarfacePbx {
+export interface InputFromStarfacePbx {
     DTMF: string;
     CallerName: string;
     CallerID: string;
-    action: string; // start | stop | input
+    action: 'start' | 'stop' | 'input';
 }
